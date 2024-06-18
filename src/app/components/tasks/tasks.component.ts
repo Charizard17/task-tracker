@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
-import { Task } from '../../Task';
-import { TASKS } from '../../mock-tasks';
+import { Component, OnInit } from '@angular/core';
 import { NgFor } from '@angular/common';
+import { TaskService } from '../../services/task.service';
+import { Task } from '../../Task';
 import { TaskItemComponent } from '../task-item/task-item.component';
 
 @Component({
@@ -11,6 +11,21 @@ import { TaskItemComponent } from '../task-item/task-item.component';
   templateUrl: './tasks.component.html',
   styleUrl: './tasks.component.css',
 })
-export class TasksComponent {
-  tasks: Task[] = TASKS;
+export class TasksComponent implements OnInit {
+  private tasks: Task[] = [];
+
+  constructor(private taskService: TaskService) {}
+
+  ngOnInit(): void {
+    this.taskService.getTasks().subscribe((tasks) => (this.tasks = tasks));
+  }
+
+  deleteTask(task: Task) {
+    this.taskService.deleteTask(task).subscribe(
+      () => (this.tasks = this.tasks.filter((t) => t.id !== task.id)),
+      (error) => {
+        console.error('Error deleting task:', error);
+      }
+    );
+  }
 }
